@@ -1,9 +1,9 @@
 #!/bin/bash
-# Depends on github.com/pboling/bsfl.bash (the Bash Shell Function Library)
+# Depends on bsfl.bash (the Bash Shell Function Library)
 
 ##### UTILITY FUNCTIONS #####
 
-# Inspiration from  http://stackoverflow.com/a/5196220/213191
+# Inspiration from http://stackoverflow.com/a/5196220/213191
 # Use step() or step_multi_line(), try(), and next() to perform a series of commands and print
 # [  OK  ] or [FAILED] at the end. The step as a whole fails if any individual
 # command fails.
@@ -46,7 +46,7 @@ try() {
     if has_value BG ; then
         "$@" &
     elif has_value IS_COMMAND ; then
-        cmd "$@" # cmd is from bsfl.bash
+       cmd "$@" # cmd is from bsfl.bash
     else
         "$@"
     fi
@@ -71,10 +71,10 @@ try() {
     fi
 
     if has_value DIE_ON_ERROR ; then
-        if [[ "$EXIT_CODE" != "0" ]]; then
-            echo -e "\n DYING HERE WITH EXIT_CODE: $EXIT_CODE...\n"
-        fi
-        die_if_false $EXIT_CODE "ERROR IN CMD: $@"
+      if [[ "$EXIT_CODE" != "0" ]]; then
+        echo -e "\n DYING HERE WITH EXIT_CODE: $EXIT_CODE...\n"
+      fi
+      die_if_false $EXIT_CODE "ERROR IN CMD: $@"
     fi
     return $EXIT_CODE
 }
@@ -84,11 +84,51 @@ next() {
 
     if [ -z "$STATUS_LINE" ] # test empty
     then
-        [[ $STEP_OK -eq 0 ]] && echo_success || echo_failure;
+      [[ $STEP_OK -eq 0 ]] && echo_success || echo_failure;
     else
-        echo -n "[$(date +"%m-%d-%Y %T")][ END ] $STATUS_LINE"
-        STATUS_LINE=''
-        [[ $STEP_OK -eq 0 ]] && echo_success || echo_failure;
+      echo -n "[$(date +"%m-%d-%Y %T")][ END ] $STATUS_LINE"
+      STATUS_LINE=''
+      [[ $STEP_OK -eq 0 ]] && echo_success || echo_failure;
     fi
     return $STEP_OK
+}
+
+function num_cores() {
+  if ! is_integer $NUM_CORES; then
+    if [[ $SYSTEM_TYPE == 'Darwin' ]]; then
+      # Mac
+      RESULT=$(sysctl hw.ncpu)
+      NUM_CORES=${RESULT##* }
+    else
+      # Linux
+      NUM_CORES=$(grep -c -i --color "model name" /proc/cpuinfo)
+    fi
+  fi
+  if ! is_integer $NUM_CORES; then
+    NUM_CORES=1
+    echo "Unable to determine how many cores are availalbe, using $NUM_CORES"
+  fi
+  export NUM_CORES=$NUM_CORES
+  return 0
+}
+
+function die_unless_has_exported_value_step() {
+  step "[TEST] $1 has export val"
+    die_unless_has_exported_value $1
+  next
+}
+function die_unless_has_exported_value() {
+  has_exported_value $1
+  die_if_false $? "$1 is undefined."
+}
+
+function die_unless_has_value_step() {
+  step "[TEST] $1 has value"
+    die_unless_has_value $1
+  next
+}
+
+function die_unless_has_value() {
+  has_value $1
+  die_if_false $? "$1 is undefined."
 }
