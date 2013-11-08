@@ -111,7 +111,17 @@ function num_cores() {
   export NUM_CORES=$NUM_CORES
   return 0
 }
-
+function num_build_jobs() {
+  if ! is_integer $JOBS_PER_CORE; then
+    JOBS_PER_CORE=2
+  fi
+  num_cores
+  if ! is_integer $BUILD_JOBS; then
+    BUILD_JOBS=$(($NUM_CORES * $JOBS_PER_CORE))
+  fi
+  export BUILD_JOBS=$BUILD_JOBS
+  return 0
+}
 function die_unless_has_exported_value_step() {
   step "[TEST] $1 has export val"
     die_unless_has_exported_value $1
