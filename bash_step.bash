@@ -1,11 +1,10 @@
 #!/bin/bash
-# This script is loaded by bootstrap_init.bash
 # Depends on bsfl.bash (the Bash Shell Function Library)
 
 ##### UTILITY FUNCTIONS #####
 
-# From http://stackoverflow.com/a/5196220/213191
-# Use step(), try(), and next() to perform a series of commands and print
+# Inspiration from http://stackoverflow.com/a/5196220/213191
+# Use step() or step_multi_line(), try(), and next() to perform a series of commands and print
 # [  OK  ] or [FAILED] at the end. The step as a whole fails if any individual
 # command fails.
 #
@@ -92,4 +91,54 @@ next() {
       [[ $STEP_OK -eq 0 ]] && echo_success || echo_failure;
     fi
     return $STEP_OK
+}
+
+function num_cores() {
+  if ! is_integer $NUM_CORES; then
+    if [[ $SYSTEM_TYPE == 'Darwin' ]]; then
+      # Mac
+      RESULT=$(sysctl hw.ncpu)
+      NUM_CORES=${RESULT##* }
+    else
+      # Linux
+      NUM_CORES=$(grep -c -i --color "model name" /proc/cpuinfo)
+    fi
+  fi
+  if ! is_integer $NUM_CORES; then
+    NUM_CORES=1
+    echo "Unable to determine how many cores are availalbe, using $NUM_CORES"
+  fi
+  export NUM_CORES=$NUM_CORES
+  return 0
+}
+function num_build_jobs() {
+  if ! is_integer $JOBS_PER_CORE; then
+    JOBS_PER_CORE=2
+  fi
+  num_cores
+  if ! is_integer $BUILD_JOBS; then
+    BUILD_JOBS=$(($NUM_CORES * $JOBS_PER_CORE))
+  fi
+  export BUILD_JOBS=$BUILD_JOBS
+  return 0
+}
+function die_unless_has_exported_value_step() {
+  step "[TEST] $1 has export val"
+    die_unless_has_exported_value $1
+  next
+}
+function die_unless_has_exported_value() {
+  has_exported_value $1
+  die_if_false $? "$1 is undefined."
+}
+
+function die_unless_has_value_step() {
+  step "[TEST] $1 has value"
+    die_unless_has_value $1
+  next
+}
+
+function die_unless_has_value() {
+  has_value $1
+  die_if_false $? "$1 is undefined."
 }
