@@ -1,5 +1,6 @@
 #!/bin/bash
-# Depends on bsfl.bash (the Bash Shell Function Library)
+# Depends on the pboling fork of bsfl.bash (the Bash Shell Function Library):
+# https://github.com/pboling/bsfl/blob/master/bsfl
 
 ##### UTILITY FUNCTIONS #####
 
