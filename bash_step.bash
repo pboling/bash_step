@@ -1,9 +1,9 @@
 #!/bin/bash
 # Depends on the pboling fork of bsfl.bash (the Bash Shell Function Library):
 # https://github.com/pboling/bsfl/blob/master/bsfl
-
+#
 ##### UTILITY FUNCTIONS #####
-
+#
 # Inspiration from http://stackoverflow.com/a/5196220/213191
 # Use step() or step_multi_line(), try(), and next() to perform a series of commands and print
 # [  OK  ] or [FAILED] at the end. The step as a whole fails if any individual
@@ -14,6 +14,10 @@
 #       try mount -o remount,rw /
 #       try mount -o remount,rw /boot
 #     next
+#
+
+BASH_STEP_VERSION="0.0.2"
+
 step() {
     echo -n "[$(date +"%m-%d-%Y %T")] $@"
 
