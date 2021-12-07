@@ -19,13 +19,13 @@
 BASH_STEP_VERSION="0.0.2"
 
 step() {
-    echo -n "[$(date +"%m-%d-%Y %T")] $@"
+    printf "[$(date +"%m-%d-%Y %T")] $@"
 
     STEP_OK=0
     [[ -w /tmp ]] && echo $STEP_OK > /tmp/step.$$
 }
 step_multi_line() {
-    echo -ne "[$(date +"%m-%d-%Y %T")][BEGIN] $@ ...\n"
+    printf "[$(date +"%m-%d-%Y %T")][BEGIN] $@ ...\n"
 
     STEP_OK=0
     [[ -w /tmp ]] && echo $STEP_OK > /tmp/step.$$
@@ -77,7 +77,7 @@ try() {
 
     if has_value DIE_ON_ERROR ; then
       if [[ "$EXIT_CODE" != "0" ]]; then
-        echo -e "\n DYING HERE WITH EXIT_CODE: $EXIT_CODE...\n"
+        printf "\n DYING HERE WITH EXIT_CODE: $EXIT_CODE...\n"
       fi
       die_if_false $EXIT_CODE "ERROR IN CMD: $@"
     fi
@@ -91,7 +91,7 @@ next() {
     then
       [[ $STEP_OK -eq 0 ]] && echo_success || echo_failure;
     else
-      echo -n "[$(date +"%m-%d-%Y %T")][ END ] $STATUS_LINE"
+      printf "[$(date +"%m-%d-%Y %T")][ END ] $STATUS_LINE"
       STATUS_LINE=''
       [[ $STEP_OK -eq 0 ]] && echo_success || echo_failure;
     fi
